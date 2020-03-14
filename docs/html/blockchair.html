@@ -1,0 +1,622 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>blockchair package &#8212; Blockchair SDK  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="blockchair-package">
+<h1>blockchair package<a class="headerlink" href="#blockchair-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-blockchair.api">
+<span id="blockchair-api-module"></span><h2>blockchair.api module<a class="headerlink" href="#module-blockchair.api" title="Permalink to this headline">¶</a></h2>
+<p>Python SDK for Blockchair web services. 
+Easily query the blockchain without writing any code. 
+Fast, reliable, and packed with powerful features you won’t find in other block explorers. 
+Currently supports bitcoin, bitcoin-cash,bitcoin-sv,litecoin, ethereum.</p>
+<dl class="class">
+<dt id="blockchair.api.Blockchair">
+<em class="property">class </em><code class="descclassname">blockchair.api.</code><code class="descname">Blockchair</code><a class="reference internal" href="_modules/blockchair/api.html#Blockchair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for simple and dificult calls with filters, sorts, limits, and offset can be used as a paginator.</p>
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.api_key">
+<code class="descname">api_key</code><em class="property"> = None</em><a class="headerlink" href="#blockchair.api.Blockchair.api_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.chain">
+<code class="descname">chain</code><a class="headerlink" href="#blockchair.api.Blockchair.chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>attrgetter(attr, …) –&gt; attrgetter object</p>
+<p>Return a callable object that fetches the given attribute(s) from its operand.
+After f = attrgetter(‘name’), the call f(r) returns r.name.
+After g = attrgetter(‘name’, ‘date’), the call g(r) returns (r.name, r.date).
+After h = attrgetter(‘name.first’, ‘name.last’), the call h(r) returns
+(r.name.first, r.name.last).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.clear_state">
+<code class="descname">clear_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.clear_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.clear_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Сlear out the number of state for new request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_address">
+<code class="descname">get_address</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_address" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Takes an address returns an array with one element (if the address is found), in that case the address is the key,</dt>
+<dd>and the value is an array consisting of the following elements</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> (<em>str</em>) – a coin address</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the address info what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_block">
+<code class="descname">get_block</code><span class="sig-paren">(</span><em>block_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a block_info and returns the block and addition information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>block_info</strong> – a block id(int) or hash(str) that you want know the block</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the block and transactions in block (only for Ethereum - synthetic_transactions,uncles) what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_blocks">
+<code class="descname">get_blocks</code><span class="sig-paren">(</span><em>mempool=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of blocks that you find.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mempool</strong> (<em>str</em>) – the request from mempool of blocks or no (Default value = None)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_blocks_dashboards">
+<code class="descname">get_blocks_dashboards</code><span class="sig-paren">(</span><em>block_info_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_blocks_dashboards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_blocks_dashboards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list block_info_list and returns the blocks and addition information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>block_info_list</strong> (<em>list</em>) – a list of block id(int) or hash(str) that you want know the blocks</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the blocks and transactions in blocks (only for Ethereum - synthetic_transactions,uncles) what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_calls">
+<code class="descname">get_calls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_calls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_calls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of ethereum calls.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">APIError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_latest_block">
+<code class="descname">get_latest_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_latest_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_latest_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latest block info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return dict:</th><td class="field-body">the latest block info. If chain ethereum return array of last 6 blocks.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_nodes">
+<code class="descname">get_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes for a given coin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chain</strong> (<em>str</em>) – chain to look up, possible values are bitcoin-sv, bitcoin, bitcoin-cash,litecoin,</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">returns data on networks stats</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">APIError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_outputs">
+<code class="descname">get_outputs</code><span class="sig-paren">(</span><em>mempool=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of outputs in blockchain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mempool</strong> – the request from mempool of blocks or no (Default value = None).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">APIError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_priority">
+<code class="descname">get_priority</code><span class="sig-paren">(</span><em>tx_hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_priority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a tx_hash for mempool transactions shows priority (position) (for Bitcoin - by fee_per_kwu, for Bitcoin Cash - by fee_per_kb,
+for Ethereum - by gas_price) over other transactions (out_of mempool transactions).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tx_hash</strong> (<em>str</em>) – a hash of an unconfirmed transaction</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the unconfirmed transaction priority what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_raw_tx">
+<code class="descname">get_raw_tx</code><span class="sig-paren">(</span><em>tx_hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_raw_tx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_raw_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an transaction hash and returns the hex raw transaction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tx_hash</strong> (<em>str</em>) – the uncle hash that you find the uncle</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the raw transaction what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_stats">
+<code class="descname">get_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the stats for a given coin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return dict:</th><td class="field-body">returns a dictinary with blockchain statistics</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_transaction">
+<code class="descname">get_transaction</code><span class="sig-paren">(</span><em>tx_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_transaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a tx_info and returns an array with identifiers or hashes of transactions used as keys, and arrays of elements as keys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tx_info</strong> – an internal blockchair-id(int) or a hash of a transaction(str) that you want know the transaction</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the transaction what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_transactions">
+<code class="descname">get_transactions</code><span class="sig-paren">(</span><em>mempool=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_transactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_transactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of transactions in blocks that you find.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mempool</strong> – the request from mempool of blocks or no (Default value = None)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_txs">
+<code class="descname">get_txs</code><span class="sig-paren">(</span><em>tx_info_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_txs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_txs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list tx_info_list and returns an array with identifiers or hashes of transactions used as keys, and arrays of elements as keys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tx_info_list</strong> (<em>list</em>) – a list of an internal blockchair-id(int) or a hash of a transactions(str) that you want know the transactions.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the transactions what you find.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_uncle">
+<code class="descname">get_uncle</code><span class="sig-paren">(</span><em>uncle_hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_uncle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_uncle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an uncle_hash and returns the information about uncle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uncle_hash</strong> (<em>str</em>) – the uncle hash that you find the uncle</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the uncle what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_uncles">
+<code class="descname">get_uncles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_uncles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_uncles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of ethereum uncles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">APIError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.get_uncles_by_hash">
+<code class="descname">get_uncles_by_hash</code><span class="sig-paren">(</span><em>uncle_hash_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.get_uncles_by_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.get_uncles_by_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of uncle_hash and returns the information about uncles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uncle_hash_list</strong> (<em>list</em>) – the list of uncle hash(str) that you find the uncles</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">the uncles what you find</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.limit">
+<code class="descname">limit</code><a class="headerlink" href="#blockchair.api.Blockchair.limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>attrgetter(attr, …) –&gt; attrgetter object</p>
+<p>Return a callable object that fetches the given attribute(s) from its operand.
+After f = attrgetter(‘name’), the call f(r) returns r.name.
+After g = attrgetter(‘name’, ‘date’), the call g(r) returns (r.name, r.date).
+After h = attrgetter(‘name.first’, ‘name.last’), the call h(r) returns
+(r.name.first, r.name.last).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.next">
+<code class="descname">next</code><span class="sig-paren">(</span><em>incr=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a number of next iteration in offset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>incr</strong> (<em>int</em>) – the number of iteration in offset (Default value = None)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.offset">
+<code class="descname">offset</code><a class="headerlink" href="#blockchair.api.Blockchair.offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>attrgetter(attr, …) –&gt; attrgetter object</p>
+<p>Return a callable object that fetches the given attribute(s) from its operand.
+After f = attrgetter(‘name’), the call f(r) returns r.name.
+After g = attrgetter(‘name’, ‘date’), the call g(r) returns (r.name, r.date).
+After h = attrgetter(‘name.first’, ‘name.last’), the call h(r) returns
+(r.name.first, r.name.last).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blockchair.api.Blockchair.push_broadcast_tx">
+<code class="descname">push_broadcast_tx</code><span class="sig-paren">(</span><em>tx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/api.html#Blockchair.push_broadcast_tx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.api.Blockchair.push_broadcast_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a signed transaction hex binary (and chain) and broadcasts it to the chain network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tx</strong> (<em>str</em>) – hex encoded transaction</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict:</th><td class="field-body">returns a dictinary with transaction hash or error 400</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.query">
+<code class="descname">query</code><a class="headerlink" href="#blockchair.api.Blockchair.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>attrgetter(attr, …) –&gt; attrgetter object</p>
+<p>Return a callable object that fetches the given attribute(s) from its operand.
+After f = attrgetter(‘name’), the call f(r) returns r.name.
+After g = attrgetter(‘name’, ‘date’), the call g(r) returns (r.name, r.date).
+After h = attrgetter(‘name.first’, ‘name.last’), the call h(r) returns
+(r.name.first, r.name.last).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="blockchair.api.Blockchair.sort">
+<code class="descname">sort</code><a class="headerlink" href="#blockchair.api.Blockchair.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>attrgetter(attr, …) –&gt; attrgetter object</p>
+<p>Return a callable object that fetches the given attribute(s) from its operand.
+After f = attrgetter(‘name’), the call f(r) returns r.name.
+After g = attrgetter(‘name’, ‘date’), the call g(r) returns (r.name, r.date).
+After h = attrgetter(‘name.first’, ‘name.last’), the call h(r) returns
+(r.name.first, r.name.last).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-blockchair.exceptions">
+<span id="blockchair-exceptions-module"></span><h2>blockchair.exceptions module<a class="headerlink" href="#module-blockchair.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="blockchair.exceptions.APIError">
+<em class="property">exception </em><code class="descclassname">blockchair.exceptions.</code><code class="descname">APIError</code><span class="sig-paren">(</span><em>message</em>, <em>code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/exceptions.html#APIError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.exceptions.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="blockchair.exceptions.FormatError">
+<em class="property">exception </em><code class="descclassname">blockchair.exceptions.</code><code class="descname">FormatError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/exceptions.html#FormatError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.exceptions.FormatError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-blockchair.utils">
+<span id="blockchair-utils-module"></span><h2>blockchair.utils module<a class="headerlink" href="#module-blockchair.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="blockchair.utils.call_api">
+<code class="descclassname">blockchair.utils.</code><code class="descname">call_api</code><span class="sig-paren">(</span><em>resource</em>, <em>chain='bitcoin'</em>, <em>data=None</em>, <em>api_url=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#call_api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.call_api" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.handle_response">
+<code class="descclassname">blockchair.utils.</code><code class="descname">handle_response</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#handle_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.handle_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Urllib returns different types in Python 2 and 3 (str vs bytes)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_addr">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_addr</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_addr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_addr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_block_num">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_block_num</code><span class="sig-paren">(</span><em>block_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_block_num"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_block_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_block_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_block_query</code><span class="sig-paren">(</span><em>query_list, query_block_list=['id', 'hash', 'time', 'median_time', 'size', 'stripped_size', 'weight', 'version', 'nonce', 'bits', 'difficulty', 'transaction_count', 'witness_count', 'input_count', 'output_count', 'input_total', 'input_total_usd', 'output_total', 'output_total_usd', 'fee_total', 'fee_total_usd', 'fee_per_kb', 'fee_per_kb_usd', 'fee_per_kwu', 'fee_per_kwu_usd', 'cdd_total', 'generation', 'generation_usd', 'reward', 'reward_usd', 'guessed_miner', 'coinbase_data_bin', 'coinbase_data_hex']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_block_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_block_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_block_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_block_sort</code><span class="sig-paren">(</span><em>sort_list, sort_block_list=['id', 'hash', 'time', 'median_time', 'size', 'stripped_size', 'weight', 'version', 'nonce', 'bits', 'difficulty', 'transaction_count', 'witness_count', 'input_count', 'output_count', 'input_total', 'input_total_usd', 'output_total', 'output_total_usd', 'fee_total', 'fee_total_usd', 'fee_per_kb', 'fee_per_kb_usd', 'fee_per_kwu', 'fee_per_kwu_usd', 'cdd_total', 'generation', 'generation_usd', 'reward', 'reward_usd', 'guessed_miner']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_block_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_block_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_blockchair_id">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_blockchair_id</code><span class="sig-paren">(</span><em>block_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_blockchair_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_blockchair_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_call_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_call_query</code><span class="sig-paren">(</span><em>query_list, query_call_list=['block_id', 'transaction_id', 'index', 'depth', 'time', 'child_call_count', 'value', 'value_usd', 'failed', 'fail_reason', 'type', 'sender', 'recipient', 'transferred']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_call_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_call_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_call_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_call_sort</code><span class="sig-paren">(</span><em>sort_list, sort_call_list=['block_id', 'transaction_id', 'index', 'depth', 'time', 'child_call_count', 'value', 'value_usd']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_call_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_call_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_chain">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_chain</code><span class="sig-paren">(</span><em>chain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_chain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_ethereum_addr">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_ethereum_addr</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_ethereum_addr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_ethereum_addr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_ethereum_hash">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_ethereum_hash</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_ethereum_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_ethereum_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_hash">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_hash</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_limit">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_limit</code><span class="sig-paren">(</span><em>limit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_offset">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_offset</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_output_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_output_query</code><span class="sig-paren">(</span><em>query_list, query_output_list=['block_id', 'transaction_id', 'index', 'time', 'value', 'value_usd', 'recipient', 'type', 'spending_block_id', 'spending_transaction_id', 'spending_index', 'spending_time', 'spending_value_usd', 'spending_sequence', 'lifespan', 'cdd', 'script_bin', 'is_spent', 'is_spendable', 'is_from_coinbase', 'script_hex']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_output_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_output_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_output_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_output_sort</code><span class="sig-paren">(</span><em>sort_list, sort_output_list=['block_id', 'transaction_id', 'index', 'time', 'value', 'value_usd', 'recipient', 'type', 'spending_block_id', 'spending_transaction_id', 'spending_index', 'spending_time', 'spending_value_usd', 'spending_sequence', 'lifespan', 'cdd']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_output_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_output_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_query</code><span class="sig-paren">(</span><em>query_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_sort</code><span class="sig-paren">(</span><em>sort_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_tx_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_tx_query</code><span class="sig-paren">(</span><em>query_list, query_tx_list=['block_id', 'id', 'time', 'size', 'weight', 'version', 'lock_time', 'input_count', 'output_count', 'input_total', 'input_total_usd', 'output_total', 'output_total_usd', 'fee', 'fee_usd', 'fee_per_kb', 'fee_per_kb_usd', 'fee_per_kwu', 'fee_per_kwu_usd', 'cdd_total', 'hash', 'is_coinbase', 'has_witness']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_tx_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_tx_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_tx_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_tx_sort</code><span class="sig-paren">(</span><em>sort_list, sort_tx_list=['block_id', 'id', 'time', 'size', 'weight', 'version', 'lock_time', 'input_count', 'output_count', 'input_total', 'input_total_usd', 'output_total', 'output_total_usd', 'fee', 'fee_usd', 'fee_per_kb', 'fee_per_kb_usd', 'fee_per_kwu', 'fee_per_kwu_usd', 'cdd_total']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_tx_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_tx_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_uncle_query">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_uncle_query</code><span class="sig-paren">(</span><em>query_list, query_uncle_list=['parent_block_id', 'index', 'time', 'size', 'difficulty', 'gas_used', 'gas_limit', 'generation', 'generation_usd', 'hash', 'miner', 'extra_data_hex', 'extra_data_bin']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_uncle_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_uncle_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.is_valid_uncle_sort">
+<code class="descclassname">blockchair.utils.</code><code class="descname">is_valid_uncle_sort</code><span class="sig-paren">(</span><em>sort_list, sort_uncle_list=['parent_block_id', 'index', 'time', 'size', 'difficulty', 'gas_used', 'gas_limit', 'generation', 'generation_usd']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#is_valid_uncle_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.is_valid_uncle_sort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.search_value">
+<code class="descclassname">blockchair.utils.</code><code class="descname">search_value</code><span class="sig-paren">(</span><em>d</em>, <em>key</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#search_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.search_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a value corresponding to the specified key in the (possibly
+nested) dictionary d. If there is no item with that key, return
+default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blockchair.utils.uses_only_hash_chars">
+<code class="descclassname">blockchair.utils.</code><code class="descname">uses_only_hash_chars</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/blockchair/utils.html#uses_only_hash_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blockchair.utils.uses_only_hash_chars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-blockchair">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-blockchair" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Blockchair SDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Rustam Sultanov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/blockchair.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,762 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>blockchair.api &#8212; Blockchair SDK  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for blockchair.api</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python SDK for Blockchair web services. </span>
+<span class="sd">Easily query the blockchain without writing any code. </span>
+<span class="sd">Fast, reliable, and packed with powerful features you won&#39;t find in other block explorers. </span>
+<span class="sd">Currently supports bitcoin, bitcoin-cash,bitcoin-sv,litecoin, ethereum.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="k">import</span> <span class="n">APIError</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+
+<div class="viewcode-block" id="Blockchair"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair">[docs]</a><span class="k">class</span> <span class="nc">Blockchair</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Class for simple and dificult calls with filters, sorts, limits, and offset can be used as a paginator.&quot;&quot;&quot;</span>
+
+    <span class="n">_state</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">api_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="o">=</span> <span class="n">BTC</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">chain</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_chain&#39;</span><span class="p">))</span>
+
+    <span class="nd">@chain</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param str value: possible values are BSV, BTC, BCH, LTC, ETH.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_valid_chain</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_chain</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_query&#39;</span><span class="p">))</span>
+
+    <span class="nd">@query</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param list value: list of lists filters parametrs like `[[&#39;id&#39;,1,3,&#39;strict&#39;],[&#39;coinbase_data_bin&#39;,&#39;~&#39;,&#39;hello&#39;]]`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_query</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="n">sort</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_sort&#39;</span><span class="p">))</span>
+
+    <span class="nd">@sort</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param list value: list of lists sorts parametrs like `[[&#39;id&#39;,&#39;desc&#39;],[&#39;size&#39;,&#39;asc&#39;]]`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_sort</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sort</span> <span class="o">=</span> <span class="n">value</span>
+
+
+    <span class="n">limit</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_limit&#39;</span><span class="p">))</span>
+
+    <span class="nd">@limit</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param int value: a natural number from 1 to 100.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_limit</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_offset&#39;</span><span class="p">))</span>
+
+    <span class="nd">@offset</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param int value:  is a natural number from 1 to 10000.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_offset</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_offset</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_construct_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">querys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A private function to construct http get-request.</span>
+
+<span class="sd">        :param str resource: a main part of request.</span>
+<span class="sd">        :param sort:  (Default value = None)</span>
+<span class="sd">        :param querys:  (Default value = None)</span>
+<span class="sd">        :return: str the result of request.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">sort</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;),&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
+                          <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+
+        <span class="k">if</span> <span class="n">querys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">querys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;^&#39;</span> <span class="ow">or</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;~&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+                    <span class="k">elif</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(...&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+                    <span class="k">elif</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;...),&#39;</span>
+                    <span class="k">elif</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+                    <span class="k">elif</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;..),&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;strict&#39;</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;...&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">query</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?q=&#39;</span> <span class="o">+</span> <span class="n">query</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;,id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;s=&#39;</span> <span class="o">+</span> <span class="n">sort</span> <span class="k">if</span> <span class="n">sort</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="n">sort</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?s=&#39;</span> <span class="o">+</span> <span class="n">sort</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;context&#39;</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">json_response</span>
+
+<div class="viewcode-block" id="Blockchair.next"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">incr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a number of next iteration in offset.</span>
+
+<span class="sd">        :param int incr: the number of iteration in offset (Default value = None)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="n">incr</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">incr</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">incr</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">incr</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="n">incr</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="n">incr</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">incr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">incr</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="n">incr</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">incr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span>
+        <span class="k">elif</span> <span class="n">incr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="n">incr</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_blocks"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mempool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of blocks that you find.</span>
+
+<span class="sd">        :param str mempool: the request from mempool of blocks or no (Default value = None)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool&#39;</span> <span class="k">if</span> <span class="n">mempool</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;/blocks&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_ETH</span><span class="p">)</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_transactions"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_transactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mempool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of transactions in blocks that you find.</span>
+
+<span class="sd">        :param mempool: the request from mempool of blocks or no (Default value = None)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool&#39;</span> <span class="k">if</span> <span class="n">mempool</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/transactions&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_TRANSACTION_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                                      <span class="n">QUERY_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_ETH</span><span class="p">)</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_TRANSACTION_LIST_ETH</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                                      <span class="n">QUERY_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+                    <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_outputs"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mempool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of outputs in blockchain.</span>
+
+<span class="sd">        :param mempool: the request from mempool of blocks or no (Default value = None).</span>
+<span class="sd">        :raises: APIError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APIError</span><span class="p">(</span><span class="s1">&#39;Call outputs is not support ethereum.&#39;</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool&#39;</span> <span class="k">if</span> <span class="n">mempool</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/outputs&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_output_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">is_valid_output_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_output_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+                <span class="n">is_valid_output_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_calls"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_calls">[docs]</a>    <span class="k">def</span> <span class="nf">get_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of ethereum calls.</span>
+
+<span class="sd">        :raises: APIError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">APIError</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;Call outputs is support only ethereum. Please change &#39;chain&#39; on ETH. &quot;&quot;&quot;</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/calls&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_call_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">is_valid_call_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_call_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+                <span class="n">is_valid_call_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_uncles"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_uncles">[docs]</a>    <span class="k">def</span> <span class="nf">get_uncles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of ethereum uncles.</span>
+
+<span class="sd">        :raises: APIError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">APIError</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;Call uncles is support only ethereum. Please change &#39;chain&#39; on ETH. &quot;&quot;&quot;</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/uncles&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_uncle_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">is_valid_uncle_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_uncle_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
+                <span class="n">is_valid_uncle_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blockchair.clear_state"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.clear_state">[docs]</a>    <span class="k">def</span> <span class="nf">clear_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Сlear out the number of state for new request.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_latest_block"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_latest_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_latest_block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the latest block info.</span>
+
+<span class="sd">        :return dict: the latest block info. If chain ethereum return array of last 6 blocks.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool/blocks&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="n">last_six_blocks</span> <span class="o">=</span> <span class="n">search_value</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">last_six_blocks</span>
+        <span class="n">latest_block</span> <span class="o">=</span> <span class="n">search_value</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">latest_block</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_block"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a block_info and returns the block and addition information.</span>
+
+<span class="sd">        :param block_info: a block id(int) or hash(str) that you want know the block</span>
+<span class="sd">        :return dict: the block and transactions in block (only for Ethereum - synthetic_transactions,uncles) what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">is_valid_block_num</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">is_valid_block_num</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_hash</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/block/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">block_info</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+
+        <span class="n">block</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">block_info</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">block</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_blocks_dashboards"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_blocks_dashboards">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks_dashboards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_info_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a list block_info_list and returns the blocks and addition information.</span>
+
+<span class="sd">        :param list block_info_list: a list of block id(int) or hash(str) that you want know the blocks</span>
+<span class="sd">        :return dict: the blocks and transactions in blocks (only for Ethereum - synthetic_transactions,uncles) what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">block_info</span> <span class="ow">in</span> <span class="n">block_info_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">is_valid_block_num</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">is_valid_block_num</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_hash</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/blocks/&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">block_info</span> <span class="ow">in</span> <span class="n">block_info_list</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">blocks</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_transaction"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">get_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a tx_info and returns an array with identifiers or hashes of transactions used as keys, and arrays of elements as keys.</span>
+
+<span class="sd">        :param tx_info: an internal blockchair-id(int) or a hash of a transaction(str) that you want know the transaction</span>
+<span class="sd">        :return dict: the transaction what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tx_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">is_valid_blockchair_id</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tx_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">is_valid_blockchair_id</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_valid_hash</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/transaction/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">tx_info</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+
+        <span class="n">tx</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">tx</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_txs"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_txs">[docs]</a>    <span class="k">def</span> <span class="nf">get_txs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_info_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a list tx_info_list and returns an array with identifiers or hashes of transactions used as keys, and arrays of elements as keys.</span>
+
+<span class="sd">        :param list tx_info_list: a list of an internal blockchair-id(int) or a hash of a transactions(str) that you want know the transactions.</span>
+<span class="sd">        :return dict: the transactions what you find.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">tx_info</span> <span class="ow">in</span> <span class="n">tx_info_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tx_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">is_valid_blockchair_id</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tx_info</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">is_valid_blockchair_id</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_valid_hash</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/transactions/&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">tx_info</span> <span class="ow">in</span> <span class="n">tx_info_list</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">txs</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">txs</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_priority"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_priority">[docs]</a>    <span class="k">def</span> <span class="nf">get_priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a tx_hash for mempool transactions shows priority (position) (for Bitcoin - by fee_per_kwu, for Bitcoin Cash - by fee_per_kb,</span>
+<span class="sd">        for Ethereum - by gas_price) over other transactions (out_of mempool transactions).</span>
+
+<span class="sd">        :param str tx_hash: a hash of an unconfirmed transaction</span>
+<span class="sd">        :return dict: the unconfirmed transaction priority what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_valid_hash</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/transaction/&#39;</span> <span class="o">+</span> <span class="n">tx_hash</span> <span class="o">+</span> <span class="s1">&#39;/priority&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">tx_hash</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">priority</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_address"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_address">[docs]</a>    <span class="k">def</span> <span class="nf">get_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes an address returns an array with one element (if the address is found), in that case the address is the key,</span>
+<span class="sd">         and the value is an array consisting of the following elements</span>
+
+<span class="sd">        :param str address: a coin address</span>
+<span class="sd">        :return dict: the address info what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="n">is_valid_ethereum_addr</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_valid_addr</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/address/&#39;</span> <span class="o">+</span> <span class="n">address</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">addr</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">addr</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_uncle"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_uncle">[docs]</a>    <span class="k">def</span> <span class="nf">get_uncle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uncle_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes an uncle_hash and returns the information about uncle</span>
+
+<span class="sd">        :param str uncle_hash: the uncle hash that you find the uncle</span>
+<span class="sd">        :return dict: the uncle what you find</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">uncle_hash</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/uncle/&#39;</span> <span class="o">+</span> <span class="n">uncle_hash</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="n">ETH</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">uncle</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">uncle_hash</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">uncle</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_uncles_by_hash"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_uncles_by_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_uncles_by_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uncle_hash_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a list of uncle_hash and returns the information about uncles</span>
+
+<span class="sd">        :param list uncle_hash_list: the list of uncle hash(str) that you find the uncles</span>
+<span class="sd">        :return dict: the uncles what you find </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uncle_hash</span> <span class="ow">in</span> <span class="n">uncle_hash_list</span><span class="p">:</span>
+            <span class="n">is_valid_ethereum_hash</span><span class="p">(</span><span class="n">uncle_hash</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/uncles/&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">uncle_hash</span> <span class="ow">in</span> <span class="n">uncle_hash_list</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="n">uncle_hash</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="n">ETH</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">uncles</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">uncles</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_stats"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the stats for a given coin</span>
+
+<span class="sd">        :return dict: returns a dictinary with blockchain statistics</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/stats&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">stats</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_nodes"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the nodes for a given coin</span>
+
+<span class="sd">        :param str chain: chain to look up, possible values are bitcoin-sv, bitcoin, bitcoin-cash,litecoin,</span>
+<span class="sd">        :return dict: returns data on networks stats</span>
+<span class="sd">        :raises: APIError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APIError</span><span class="p">(</span><span class="s1">&#39;Call nodes is not support ethereum&#39;</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/nodes&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">nodes</span></div>
+
+<div class="viewcode-block" id="Blockchair.push_broadcast_tx"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.push_broadcast_tx">[docs]</a>    <span class="k">def</span> <span class="nf">push_broadcast_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes a signed transaction hex binary (and chain) and broadcasts it to the chain network.</span>
+
+<span class="sd">        :param str tx: hex encoded transaction</span>
+<span class="sd">        :return dict: returns a dictinary with transaction hash or error 400 </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">tx</span><span class="p">}</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/push/transaction&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_response</span></div>
+
+<div class="viewcode-block" id="Blockchair.get_raw_tx"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_raw_tx">[docs]</a>    <span class="k">def</span> <span class="nf">get_raw_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes an transaction hash and returns the hex raw transaction</span>
+
+<span class="sd">        :param str tx_hash: the uncle hash that you find the uncle</span>
+<span class="sd">        :return dict: the raw transaction what you find </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/raw/transaction/&#39;</span> <span class="o">+</span> <span class="n">tx_hash</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">raw_tx</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">tx_hash</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">raw_tx</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Blockchair SDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Rustam Sultanov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
