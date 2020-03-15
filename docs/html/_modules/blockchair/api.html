@@ -1,19 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>blockchair.api &#8212; Blockchair SDK  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -28,6 +26,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for blockchair.api</h1><div class="highlight"><pre>
@@ -41,24 +41,44 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="k">import</span> <span class="n">APIError</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">APIError</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="o">*</span>
 
 
-
-<div class="viewcode-block" id="Blockchair"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair">[docs]</a><span class="k">class</span> <span class="nc">Blockchair</span><span class="p">():</span>
+<div class="viewcode-block" id="Blockchair"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair">[docs]</a><span class="k">class</span> <span class="nc">Blockchair</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class for simple and dificult calls with filters, sorts, limits, and offset can be used as a paginator.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sort</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chain</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offset</span>
 
     <span class="n">_state</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="o">=</span> <span class="n">BTC</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">chain</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_chain&#39;</span><span class="p">))</span>
+    <span class="c1"># chain = property(operator.attrgetter(&#39;_chain&#39;))</span>
 
     <span class="nd">@chain</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -70,7 +90,7 @@
         <span class="n">is_valid_chain</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_chain</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_query&#39;</span><span class="p">))</span>
+    <span class="c1"># query = property(operator.attrgetter(&#39;_query&#39;))</span>
 
     <span class="nd">@query</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -82,7 +102,7 @@
         <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_query</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_query</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="n">sort</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_sort&#39;</span><span class="p">))</span>
+    <span class="c1"># sort = property(operator.attrgetter(&#39;_sort&#39;))</span>
 
     <span class="nd">@sort</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -94,8 +114,7 @@
         <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_sort</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sort</span> <span class="o">=</span> <span class="n">value</span>
 
-
-    <span class="n">limit</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_limit&#39;</span><span class="p">))</span>
+    <span class="c1"># limit = property(operator.attrgetter(&#39;_limit&#39;))</span>
 
     <span class="nd">@limit</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -107,13 +126,13 @@
         <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_limit</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="n">offset</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;_offset&#39;</span><span class="p">))</span>
+    <span class="c1"># offset = property(operator.attrgetter(&#39;_offset&#39;))</span>
 
     <span class="nd">@offset</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param int value:  is a natural number from 1 to 10000.</span>
+<span class="sd">        :param int value:  a natural number from 1 to 10000.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_valid_offset</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -132,8 +151,8 @@
         <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">sort</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;),&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
-                          <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+            <span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;),&#39;</span> <span class="o">+</span> <span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">sort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
+                   <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">sort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
 
         <span class="k">if</span> <span class="n">querys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">querys</span><span class="p">:</span>
@@ -161,7 +180,7 @@
         <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?q=&#39;</span> <span class="o">+</span> <span class="n">query</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;,id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;s=&#39;</span> <span class="o">+</span> <span class="n">sort</span> <span class="k">if</span> <span class="n">sort</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
@@ -169,26 +188,25 @@
         <span class="k">elif</span> <span class="n">sort</span><span class="p">:</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?s=&#39;</span> <span class="o">+</span> <span class="n">sort</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?limit=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">:</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?offset=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;q=id(..&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="s1">&#39;)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;&amp;key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
 
-        
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">:</span>
@@ -196,7 +214,7 @@
 
         <span class="k">return</span> <span class="n">json_response</span>
 
-<div class="viewcode-block" id="Blockchair.next"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">incr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Blockchair.next"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set a number of next iteration in offset.</span>
 
 <span class="sd">        :param int incr: the number of iteration in offset (Default value = None)</span>
@@ -215,20 +233,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="n">incr</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">incr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span>
         <span class="k">elif</span> <span class="n">incr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+=</span> <span class="n">incr</span></div>
 
-<div class="viewcode-block" id="Blockchair.get_blocks"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mempool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Blockchair.get_blocks"><a class="viewcode-back" href="../../index.html#blockchair.api.Blockchair.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a list of blocks that you find.</span>
-
-<span class="sd">        :param str mempool: the request from mempool of blocks or no (Default value = None)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool&#39;</span> <span class="k">if</span> <span class="n">mempool</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;/blocks&#39;</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/blocks&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -236,8 +251,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
                     <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_ETH</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
-                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">DOGE</span><span class="p">:</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV_DOGE</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -254,7 +269,10 @@
                     <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_ETH</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
                     <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
-                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV</span><span class="p">)</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV_DOGE</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">DOGE</span><span class="p">:</span>
+                    <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_BLOCK_LIST_DOGE</span><span class="p">)</span>
+                    <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_BLOCK_LIST_BCH_BSV_DOGE</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">is_valid_block_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
                     <span class="n">is_valid_block_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
@@ -277,7 +295,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
                     <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_TRANSACTION_LIST_ETH</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">DOGE</span><span class="p">:</span>
                     <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
                                       <span class="n">QUERY_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -286,7 +304,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
                     <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_ETH</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">DOGE</span><span class="p">:</span>
                     <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span>
@@ -294,7 +312,7 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
                     <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_ETH</span><span class="p">)</span>
                     <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">QUERY_TRANSACTION_LIST_ETH</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BSV</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">BCH</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">DOGE</span><span class="p">:</span>
                     <span class="n">is_valid_tx_sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">SORT_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
                     <span class="n">is_valid_tx_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
                                       <span class="n">QUERY_TRANSACTION_LIST_BCH_BSV</span><span class="p">)</span>
@@ -319,7 +337,7 @@
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/outputs&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">is_valid_output_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
@@ -346,7 +364,7 @@
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/calls&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">is_valid_call_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
@@ -373,7 +391,7 @@
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/uncles&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_call</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">is_valid_uncle_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
@@ -397,13 +415,17 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool/blocks&#39;</span>
-        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
-        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/mempool/blocks&#39;</span>
+            <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+            <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
             <span class="n">last_six_blocks</span> <span class="o">=</span> <span class="n">search_value</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">last_six_blocks</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/blocks&#39;</span>
+        <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="n">latest_block</span> <span class="o">=</span> <span class="n">search_value</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">latest_block</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -428,7 +450,7 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/block/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
@@ -467,7 +489,7 @@
             <span class="n">resource</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">block_info</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
 
         <span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
@@ -497,7 +519,7 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/transaction/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tx_info</span><span class="p">)</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
@@ -561,7 +583,7 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/transaction/&#39;</span> <span class="o">+</span> <span class="n">tx_hash</span> <span class="o">+</span> <span class="s1">&#39;/priority&#39;</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
@@ -580,13 +602,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="ow">is</span> <span class="n">ETH</span><span class="p">:</span>
-            <span class="n">is_valid_ethereum_addr</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+            <span class="n">is_valid_ethereum_addr</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">is_valid_addr</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
+            <span class="n">is_valid_addr</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/dashboards/address/&#39;</span> <span class="o">+</span> <span class="n">address</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
@@ -650,7 +672,7 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/stats&#39;</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="n">stats</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">stats</span></div>
@@ -669,7 +691,7 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/nodes&#39;</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">nodes</span></div>
@@ -685,7 +707,7 @@
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">tx</span><span class="p">}</span>
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/push/transaction&#39;</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json_response</span></div>
 
@@ -699,13 +721,14 @@
 
         <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;/raw/transaction/&#39;</span> <span class="o">+</span> <span class="n">tx_hash</span>
         <span class="n">resource</span> <span class="o">+=</span> <span class="s1">&#39;?key=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">call_api</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
         <span class="n">raw_tx</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">tx_hash</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">raw_tx</span></div></div>
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -731,17 +754,23 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -750,8 +779,8 @@
       &copy;2019, Rustam Sultanov.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

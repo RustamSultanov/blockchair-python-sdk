@@ -11,3 +11,5 @@ Installation via pip:
 ```
 $ pip install blockchair
 ```
+### Docs
+Read how use SDK on [docs](docs/Welcome to Blockchair SDK’s documentation.md)

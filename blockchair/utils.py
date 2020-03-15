@@ -9,7 +9,7 @@ BSV = 'bitcoin-sv'
 ETH = 'ethereum'
 DOGE = 'dogecoin'
 
-DOCS_URL = 'https://github.com/Blockchair/Blockchair.Support'
+DOCS_URL = 'https://blockchair.com/api/docs'
 API_URL = "https://api.blockchair.com/"
 TIMEOUT = 10
 
@@ -431,7 +431,7 @@ def is_valid_offset(offset):
                 "Offset value can't be larger than 10000. Please use export functions to get larger amounts of data.")
     else:
         mesg = "Incorrect offset value. You take " + \
-            type(limit).__name__ + ". Must be int"
+            type(offset).__name__ + ". Must be int"
         raise FormatError(mesg)
 
 
