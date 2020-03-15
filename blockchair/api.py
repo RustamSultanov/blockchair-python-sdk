@@ -2,30 +2,31 @@
 Python SDK for Blockchair web services. 
 Easily query the blockchain without writing any code. 
 Fast, reliable, and packed with powerful features you won't find in other block explorers. 
-Currently supports bitcoin, bitcoin-cash,bitcoin-sv,litecoin, ethereum.
+Currently supports bitcoin, bitcoin-cash, bitcoin-sv, litecoin, ethereum.
 """
 
 import json
-import operator
 
 from .exceptions import APIError
 from .utils import *
 
 
-
-class Blockchair():
-    """Class for simple and dificult calls with filters, sorts, limits, and offset can be used as a paginator."""
-
+class Blockchair:
+    """Class for simple and difficult calls with filters, sorts, limits, and offset can be used as a paginator."""
     _state = None
     api_key = None
-    def __init__(self):
-        self.chain = BTC
-        self.query = None
-        self.sort = None
-        self.limit = None
-        self.offset = None
 
-    chain = property(operator.attrgetter('_chain'))
+    def __init__(self):
+        self._chain = None
+        self.chain = BTC
+        self._query = None
+        self._sort = None
+        self._limit = None
+        self._offset = None
+
+    @property
+    def chain(self):
+        return self._chain
 
     @chain.setter
     def chain(self, value):
@@ -37,7 +38,9 @@ class Blockchair():
         is_valid_chain(value)
         self._chain = value
 
-    query = property(operator.attrgetter('_query'))
+    @property
+    def query(self):
+        return self._query
 
     @query.setter
     def query(self, value):
@@ -49,7 +52,9 @@ class Blockchair():
         value is None or is_valid_query(value)
         self._query = value
 
-    sort = property(operator.attrgetter('_sort'))
+    @property
+    def sort(self):
+        return self._sort
 
     @sort.setter
     def sort(self, value):
@@ -61,8 +66,9 @@ class Blockchair():
         value is None or is_valid_sort(value)
         self._sort = value
 
-
-    limit = property(operator.attrgetter('_limit'))
+    @property
+    def limit(self):
+        return self._limit
 
     @limit.setter
     def limit(self, value):
@@ -74,7 +80,9 @@ class Blockchair():
         value is None or is_valid_limit(value)
         self._limit = value
 
-    offset = property(operator.attrgetter('_offset'))
+    @property
+    def offset(self):
+        return self._offset
 
     @offset.setter
     def offset(self, value):
@@ -99,8 +107,8 @@ class Blockchair():
         query = ''
 
         if sort is not None:
-            sort = sort[0][0]+'('+sort[0][1]+'),'+sort[1][0]+'('+sort[1][1] + \
-                          ')' if len(sort) == 2 else sort[0][0]+'('+sort[0][1]+')'
+            sort = sort[0][0] + '(' + sort[0][1] + '),' + sort[1][0] + '(' + sort[1][1] + \
+                   ')' if len(sort) == 2 else sort[0][0] + '(' + sort[0][1] + ')'
 
         if querys is not None:
             for q in querys:
@@ -128,34 +136,33 @@ class Blockchair():
         if query:
             resource += '?q=' + query
             resource += ',id(..' + str(self._state) + \
-                ')' if self._state and self.offset else ''
+                        ')' if self._state and self._offset else ''
             resource += '&s=' + sort if sort else ''
-            resource += '&limit=' + str(self.limit) if self.limit else ''
-            resource += '&offset=' + str(self.offset) if self.offset else ''
+            resource += '&limit=' + str(self._limit) if self._limit else ''
+            resource += '&offset=' + str(self._offset) if self._offset else ''
             resource += '&key=' + self.api_key if self.api_key else ''
         elif sort:
             resource += '?s=' + sort
             resource += '&q=id(..' + str(self._state) + \
-                ')' if self._state and self.offset else ''
-            resource += '&limit=' + str(self.limit) if self.limit else ''
-            resource += '&offset=' + str(self.offset) if self.offset else ''
+                        ')' if self._state and self._offset else ''
+            resource += '&limit=' + str(self._limit) if self._limit else ''
+            resource += '&offset=' + str(self._offset) if self._offset else ''
             resource += '&key=' + self.api_key if self.api_key else ''
-        elif self.limit:
-            resource += '?limit=' + str(self.limit)
+        elif self._limit:
+            resource += '?limit=' + str(self._limit)
             resource += '&q=id(..' + str(self._state) + \
-                ')' if self._state and self.offset else ''
-            resource += '&offset=' + str(self.offset) if self.offset else ''
+                        ')' if self._state and self._offset else ''
+            resource += '&offset=' + str(self._offset) if self._offset else ''
             resource += '&key=' + self.api_key if self.api_key else ''
-        elif self.offset:
-            resource += '?offset=' + str(self.offset)
+        elif self._offset:
+            resource += '?offset=' + str(self._offset)
             resource += '&q=id(..' + str(self._state) + \
-                ')' if self._state else ''
+                        ')' if self._state else ''
             resource += '&key=' + self.api_key if self.api_key else ''
         else:
             resource += '?key=' + self.api_key if self.api_key else ''
 
-        
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not self._state:
@@ -163,29 +170,29 @@ class Blockchair():
 
         return json_response
 
-    def next(self,incr=None):
+    def next(self, incr=None):
         """Set a number of next iteration in offset.
 
         :param int incr: the number of iteration in offset (Default value = None)
 
         """
-        if self.offset and incr:
-            self.offset += int(incr)
-        elif not incr and self.offset and self.limit:
-            self.offset += self.limit
-        elif not incr and self.offset and not self.limit:
+        if self._offset and incr:
+            self._offset += int(incr)
+        elif not incr and self._offset and self._limit:
+            self._offset += self._limit
+        elif not incr and self._offset and not self._limit:
             incr = 10
-            self.offset += incr
-        elif not incr and not self.offset and not self.limit:
-            self.offset = 0
+            self._offset += incr
+        elif not incr and not self._offset and not self._limit:
+            self._offset = 0
             incr = 10
-            self.offset += incr
-        elif not incr and not self.offset and self.limit:
-            self.offset = 0
-            self.offset+=self.limit
-        elif incr and not self.offset and not self.limit:
-            self.offset = 0
-            self.offset += incr
+            self._offset += incr
+        elif not incr and not self._offset and self._limit:
+            self._offset = 0
+            self._offset += self._limit
+        elif incr and not self._offset and not self._limit:
+            self._offset = 0
+            self._offset += incr
 
     def get_blocks(self):
         """Get a list of blocks that you find.
@@ -194,39 +201,39 @@ class Blockchair():
 
         resource = '/blocks'
 
-        if self.sort is None or len(self.sort) == 0:
-            if self.query is None or len(self.query) == 0:
+        if self._sort is None or len(self._sort) == 0:
+            if self._query is None or len(self._query) == 0:
                 return self._construct_call(resource)
             else:
                 if self.chain is ETH:
-                    is_valid_block_query(self.query, QUERY_BLOCK_LIST_ETH)
+                    is_valid_block_query(self._query, QUERY_BLOCK_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH or self.chain is DOGE:
-                    is_valid_block_query(self.query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
+                    is_valid_block_query(self._query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
                 else:
-                    is_valid_block_query(self.query)
+                    is_valid_block_query(self._query)
         else:
-            if self.query is None or len(self.query) == 0:
+            if self._query is None or len(self._query) == 0:
                 if self.chain is ETH:
-                    is_valid_block_sort(self.sort, SORT_BLOCK_LIST_ETH)
+                    is_valid_block_sort(self._sort, SORT_BLOCK_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH:
-                    is_valid_block_sort(self.sort, SORT_BLOCK_LIST_BCH_BSV)
+                    is_valid_block_sort(self._sort, SORT_BLOCK_LIST_BCH_BSV)
                 else:
-                    is_valid_block_sort(self.sort)
+                    is_valid_block_sort(self._sort)
             else:
                 if self.chain is ETH:
-                    is_valid_block_sort(self.sort, SORT_BLOCK_LIST_ETH)
-                    is_valid_block_query(self.query, QUERY_BLOCK_LIST_ETH)
+                    is_valid_block_sort(self._sort, SORT_BLOCK_LIST_ETH)
+                    is_valid_block_query(self._query, QUERY_BLOCK_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH:
-                    is_valid_block_sort(self.sort, SORT_BLOCK_LIST_BCH_BSV)
-                    is_valid_block_query(self.query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
+                    is_valid_block_sort(self._sort, SORT_BLOCK_LIST_BCH_BSV)
+                    is_valid_block_query(self._query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
                 elif self.chain is DOGE:
-                    is_valid_block_sort(self.sort, SORT_BLOCK_LIST_DOGE)
-                    is_valid_block_query(self.query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
+                    is_valid_block_sort(self._sort, SORT_BLOCK_LIST_DOGE)
+                    is_valid_block_query(self._query, QUERY_BLOCK_LIST_BCH_BSV_DOGE)
                 else:
-                    is_valid_block_sort(self.sort)
-                    is_valid_block_query(self.query)
+                    is_valid_block_sort(self._sort)
+                    is_valid_block_query(self._query)
 
-        return self._construct_call(resource, self.sort, self.query)
+        return self._construct_call(resource, self._sort, self._query)
 
     def get_transactions(self, mempool=None):
         """Get a list of transactions in blocks that you find.
@@ -238,38 +245,38 @@ class Blockchair():
         resource = '/mempool' if mempool else ''
         resource = '/transactions'
 
-        if self.sort is None or len(self.sort) == 0:
-            if self.query is None or len(self.query) == 0:
+        if self._sort is None or len(self._sort) == 0:
+            if self._query is None or len(self._query) == 0:
                 return self._construct_call(resource)
             else:
                 if self.chain is ETH:
-                    is_valid_tx_query(self.query, QUERY_TRANSACTION_LIST_ETH)
+                    is_valid_tx_query(self._query, QUERY_TRANSACTION_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH or self.chain is DOGE:
-                    is_valid_tx_query(self.query,
+                    is_valid_tx_query(self._query,
                                       QUERY_TRANSACTION_LIST_BCH_BSV)
                 else:
-                    is_valid_tx_query(self.query)
+                    is_valid_tx_query(self._query)
         else:
-            if self.query is None or len(self.query) == 0:
+            if self._query is None or len(self._query) == 0:
                 if self.chain is ETH:
-                    is_valid_tx_sort(self.sort, SORT_TRANSACTION_LIST_ETH)
+                    is_valid_tx_sort(self._sort, SORT_TRANSACTION_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH or self.chain is DOGE:
-                    is_valid_tx_sort(self.sort, SORT_TRANSACTION_LIST_BCH_BSV)
+                    is_valid_tx_sort(self._sort, SORT_TRANSACTION_LIST_BCH_BSV)
                 else:
-                    is_valid_tx_sort(self.sort)
+                    is_valid_tx_sort(self._sort)
             else:
                 if self.chain is ETH:
-                    is_valid_tx_sort(self.sort, SORT_TRANSACTION_LIST_ETH)
-                    is_valid_tx_query(self.query, QUERY_TRANSACTION_LIST_ETH)
+                    is_valid_tx_sort(self._sort, SORT_TRANSACTION_LIST_ETH)
+                    is_valid_tx_query(self._query, QUERY_TRANSACTION_LIST_ETH)
                 elif self.chain is BSV or self.chain is BCH or self.chain is DOGE:
-                    is_valid_tx_sort(self.sort, SORT_TRANSACTION_LIST_BCH_BSV)
-                    is_valid_tx_query(self.query,
+                    is_valid_tx_sort(self._sort, SORT_TRANSACTION_LIST_BCH_BSV)
+                    is_valid_tx_query(self._query,
                                       QUERY_TRANSACTION_LIST_BCH_BSV)
                 else:
-                    is_valid_tx_sort(self.sort)
-                    is_valid_tx_query(self.query)
+                    is_valid_tx_sort(self._sort)
+                    is_valid_tx_query(self._query)
 
-        return self._construct_call(resource, self.sort, self.query)
+        return self._construct_call(resource, self._sort, self._query)
 
     def get_outputs(self, mempool=None):
         """Get a list of outputs in blockchain.
@@ -285,19 +292,19 @@ class Blockchair():
         resource = '/mempool' if mempool else ''
         resource = '/outputs'
 
-        if self.sort is None or len(self.sort) == 0:
-            if self.query == None or len(self.query) == 0:
+        if self._sort is None or len(self._sort) == 0:
+            if self._query is None or len(self._query) == 0:
                 return self._construct_call(resource)
             else:
-                is_valid_output_query(self.query)
+                is_valid_output_query(self._query)
         else:
-            if self.query is None or len(self.query) == 0:
-                is_valid_output_sort(self.sort)
+            if self._query is None or len(self._query) == 0:
+                is_valid_output_sort(self._sort)
             else:
-                is_valid_output_sort(self.sort)
-                is_valid_output_query(self.query)
+                is_valid_output_sort(self._sort)
+                is_valid_output_query(self._query)
 
-        return self._construct_call(resource, self.sort, self.query)
+        return self._construct_call(resource, self._sort, self._query)
 
     def get_calls(self):
         """Get a list of ethereum calls.
@@ -312,19 +319,19 @@ class Blockchair():
 
         resource = '/calls'
 
-        if self.sort is None or len(self.sort) == 0:
-            if self.query == None or len(self.query) == 0:
+        if self._sort is None or len(self._sort) == 0:
+            if self._query is None or len(self._query) == 0:
                 return self._construct_call(resource)
             else:
-                is_valid_call_query(self.query)
+                is_valid_call_query(self._query)
         else:
-            if self.query is None or len(self.query) == 0:
-                is_valid_call_sort(self.sort)
+            if self._query is None or len(self._query) == 0:
+                is_valid_call_sort(self._sort)
             else:
-                is_valid_call_sort(self.sort)
-                is_valid_call_query(self.query)
+                is_valid_call_sort(self._sort)
+                is_valid_call_query(self._query)
 
-        return self._construct_call(resource, self.sort, self.query)
+        return self._construct_call(resource, self._sort, self._query)
 
     def get_uncles(self):
         """Get a list of ethereum uncles.
@@ -339,19 +346,19 @@ class Blockchair():
 
         resource = '/uncles'
 
-        if self.sort is None or len(self.sort) == 0:
-            if self.query == None or len(self.query) == 0:
+        if self._sort is None or len(self._sort) == 0:
+            if self._query is None or len(self._query) == 0:
                 return self._construct_call(resource)
             else:
-                is_valid_uncle_query(self.query)
+                is_valid_uncle_query(self._query)
         else:
-            if self.query is None or len(self.query) == 0:
-                is_valid_uncle_sort(self.sort)
+            if self._query is None or len(self._query) == 0:
+                is_valid_uncle_sort(self._sort)
             else:
-                is_valid_uncle_sort(self.sort)
-                is_valid_uncle_query(self.query)
+                is_valid_uncle_sort(self._sort)
+                is_valid_uncle_query(self._query)
 
-        return self._construct_call(resource, self.sort, self.query)
+        return self._construct_call(resource, self._sort, self._query)
 
     def clear_state(self):
         """Сlear out the number of state for new request."""
@@ -367,13 +374,13 @@ class Blockchair():
         if self.chain is ETH:
             resource = '/mempool/blocks'
             resource += '?key=' + self.api_key if self.api_key else ''
-            response = call_api(resource, chain=self.chain)
+            response = call_api(resource, self.chain)
             json_response = json.loads(response)
             last_six_blocks = search_value(json_response, 'data')
             return last_six_blocks
         resource = '/blocks'
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
         latest_block = search_value(json_response, 'data')
         return latest_block[0]
@@ -399,7 +406,7 @@ class Blockchair():
 
         resource = '/dashboards/block/' + str(block_info)
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not json_response['data']:
@@ -438,7 +445,7 @@ class Blockchair():
             resource += str(block_info) + ','
 
         resource = resource[:-1]
-        response = call_api(resource, chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not json_response['data']:
@@ -468,7 +475,7 @@ class Blockchair():
 
         resource = '/dashboards/transaction/' + str(tx_info)
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not json_response['data']:
@@ -532,7 +539,7 @@ class Blockchair():
 
         resource = '/dashboards/transaction/' + tx_hash + '/priority'
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not json_response['data']:
@@ -551,13 +558,13 @@ class Blockchair():
         """
 
         if self.chain is ETH:
-            is_valid_ethereum_addr(tx_hash)
+            is_valid_ethereum_addr(address)
         else:
-            is_valid_addr(tx_hash)
+            is_valid_addr(address)
 
         resource = '/dashboards/address/' + address
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
 
         if not json_response['data']:
@@ -621,7 +628,7 @@ class Blockchair():
 
         resource = '/stats'
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
         stats = json_response['data']
         return stats
@@ -640,7 +647,7 @@ class Blockchair():
 
         resource = '/nodes'
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
         nodes = json_response['data']
         return nodes
@@ -656,7 +663,7 @@ class Blockchair():
         data = {'data': tx}
         resource = '/push/transaction'
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, data=data, chain=self.chain)
+        response = call_api(resource, self.chain, data)
         json_response = json.loads(response)
         return json_response
 
@@ -670,7 +677,7 @@ class Blockchair():
 
         resource = '/raw/transaction/' + tx_hash
         resource += '?key=' + self.api_key if self.api_key else ''
-        response = call_api(resource, chain=self.chain)
+        response = call_api(resource, self.chain)
         json_response = json.loads(response)
         raw_tx = json_response['data'][tx_hash]
         return raw_tx
