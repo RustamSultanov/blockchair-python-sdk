@@ -243,7 +243,7 @@ class Blockchair:
         """
 
         resource = '/mempool' if mempool else ''
-        resource = '/transactions'
+        resource += '/transactions'
 
         if self._sort is None or len(self._sort) == 0:
             if self._query is None or len(self._query) == 0:
@@ -290,7 +290,7 @@ class Blockchair:
             raise APIError('Call outputs is not support ethereum.', 400)
 
         resource = '/mempool' if mempool else ''
-        resource = '/outputs'
+        resource += '/outputs'
 
         if self._sort is None or len(self._sort) == 0:
             if self._query is None or len(self._query) == 0:

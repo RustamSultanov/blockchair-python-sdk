@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(name='blockchair',
-      version='1.0.8',
+      version='1.0.9',
       description='Blockchair API Python Library',
       author='Rustam Sultanov',
       author_email='rustamelutingol@gmail.com',
